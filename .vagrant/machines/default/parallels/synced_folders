@@ -1,0 +1,1 @@
+{"nfs":{"/host":{"nfs":true,"guestpath":"/host","hostpath":"/Users/siyuangao","disabled":false,"type":"nfs","__vagrantfile":true,"map_uid":501,"map_gid":20,"nfs_udp":true,"nfs_version":3,"uuid":"3943229937"}},"parallels":{"/vagrant":{"guestpath":"/vagrant","hostpath":"/Users/siyuangao/Documents/ml-learn","disabled":false,"__vagrantfile":true}}}
