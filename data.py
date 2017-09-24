@@ -1,6 +1,8 @@
-# import pandas as pd
-import quandl, math
+import pandas as pd
+import quandl, math, datetime
 import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib import style
 
 from sklearn import preprocessing, svm
 from sklearn.model_selection import train_test_split
@@ -29,16 +31,22 @@ df.fillna(-99999, inplace=True)
 
 forcast_out = int(math.ceil(0.01 * len(df)))
 
+print('Forcase using {0} of data.'.format(forcast_out))
+
 df['label'] = df[forcast_col].shift(-forcast_out)
-df.dropna(inplace=True)
 
 # print(df.tail())
 
 X = np.array(df.drop(['label'], 1))
 
-y = np.array(df['label'])
+
 
 X = preprocessing.scale(X)
+X_lately = X[-forcast_out:]
+X = X[:-forcast_out]
+
+df.dropna(inplace=True)
+y = np.array(df['label'])
 
 # X = X[:-forcast_out + 1]
 
@@ -54,4 +62,28 @@ clf.fit(X_train, y_train)
 
 accuracy = clf.score(X_test, y_test)
 
-print(accuracy)
+print('Accuracy is: {0}'.format(accuracy))
+
+forcast_set = clf.predict(X_lately)
+
+print(forcast_set, accuracy, forcast_out)
+
+df['Forcast'] = np.nan
+
+last_date = df.iloc[-1].name
+print(last_date)
+last_unix = pd.to_datetime(last_date).value / 1e9
+one_day = 86400
+next_unix = last_unix + one_day
+
+for i in forcast_set:
+    next_date = datetime.datetime.fromtimestamp(next_unix)
+    next_unix += one_day
+    df.loc[next_date] = [np.nan for _ in range(len(df.columns) - 1)] + [i]
+
+df['Adj. Close'].plot()
+df['Forcast'].plot()
+plt.legend(loc=4)
+plt.xlabel('Date')
+plt.ylabel('Price')
+plt.show()
